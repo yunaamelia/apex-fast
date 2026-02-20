@@ -1,39 +1,32 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { z } from 'zod';
+import { type Plugin, tool } from '@opencode-ai/plugin';
 import { applyEdit, MorphClient } from '@morphllm/morphsdk';
 
-export function FastApplyPlugin() {
+export const FastApplyPlugin: Plugin = async (ctx) => {
   if (!process.env.MORPH_API_KEY) {
     throw new Error('[ERROR] Missing MORPH_API_KEY');
   }
   const morph = new MorphClient({ apiKey: process.env.MORPH_API_KEY });
 
   return {
-    hooks: {
-      'tool.execute.before': async (context: unknown) => {
-        const ctx = context as { tool?: { name?: string } | string };
-        const toolName = typeof ctx?.tool === 'string' ? ctx.tool : ctx?.tool?.name;
-        if (toolName === 'edit') {
-          throw new Error("[ERROR] Gunakan tool 'fastApply' untuk mengedit file agar lebih cepat.");
-        }
-      },
+    'tool.execute.before': async (input) => {
+      if (input.tool === 'edit') {
+        throw new Error("[ERROR] Gunakan tool 'fastApply' untuk mengedit file agar lebih cepat.");
+      }
     },
-    tools: [
-      {
-        name: 'fastApply',
+    tool: {
+      fastApply: tool({
         description: 'Edit file content using fast apply',
-        schema: z.object({
-          filePath: z.string(),
-          instructions: z.string(),
-          codeEdit: z.string(),
-        }),
-        execute: async (
-          args: { filePath: string; instructions: string; codeEdit: string },
-          context: unknown
-        ) => {
-          const ctx = context as { directory: string };
-          const absolutePath = path.join(ctx.directory, args.filePath);
+        args: {
+          filePath: tool.schema.string().describe('Relative path to the file to edit'),
+          instructions: tool.schema.string().describe('Clear instructions on what to change'),
+          codeEdit: tool.schema.string().describe('The specific code snippet to edit (optional)'),
+        },
+        execute: async (args, context) => {
+          // Fallback to context.directory if ctx.directory is somehow missing (in tests perhaps)
+          const directory = ctx?.directory || context?.directory || process.cwd();
+          const absolutePath = path.join(directory, args.filePath);
           let originalCode: string;
 
           try {
@@ -74,6 +67,7 @@ export function FastApplyPlugin() {
 
           try {
             await fs.writeFile(absolutePath, result.mergedCode, 'utf-8');
+            return `Successfully applied changes to ${args.filePath}`;
           } catch (error: unknown) {
             if (error instanceof Error) {
               throw new Error(`[ERROR] Failed to write file: ${error.message}`);
@@ -81,7 +75,7 @@ export function FastApplyPlugin() {
             throw new Error(`[ERROR] Failed to write file`);
           }
         },
-      },
-    ],
+      }),
+    },
   };
-}
+};

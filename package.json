@@ -7,6 +7,9 @@
     "email": "root@aistorytell.me"
   },
   "type": "module",
+  "bin": {
+    "apex-fast-mcp": "./dist/mcp-server.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -26,7 +29,10 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build": "tsc",
+    "start:mcp": "node dist/mcp-server.js",
+    "lint": "eslint ."
   },
   "lint-staged": {
     "*.ts": [
@@ -36,6 +42,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^20.11.5",
     "@typescript-eslint/eslint-plugin": "8.47.0",
     "@typescript-eslint/parser": "8.47.0",
@@ -50,6 +58,11 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@morphllm/morphsdk": "^0.2.115"
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@morphllm/morphsdk": "^0.2.115",
+    "@opencode-ai/plugin": "^1.2.10",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1"
   }
 }

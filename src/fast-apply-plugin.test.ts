@@ -8,6 +8,16 @@ vi.mock('node:fs/promises', () => ({
   writeFile: vi.fn(),
 }));
 
+vi.mock('@opencode-ai/plugin', async () => {
+  const zod = await import('zod');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mockToolInner = (config: any) => config;
+  mockToolInner.schema = zod.z;
+  return {
+    tool: mockToolInner,
+  };
+});
+
 vi.mock('@morphllm/morphsdk', () => {
   const classifyMock = vi.fn();
   return {
@@ -34,25 +44,30 @@ describe('FastApplyPlugin', () => {
     process.env.MORPH_API_KEY = originalEnv;
   });
 
-  it('throws [ERROR] Missing MORPH_API_KEY if no env', () => {
+  it('throws [ERROR] Missing MORPH_API_KEY if no env', async () => {
     delete process.env.MORPH_API_KEY;
-    expect(() => FastApplyPlugin()).toThrow('[ERROR] Missing MORPH_API_KEY');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await expect(FastApplyPlugin({} as any)).rejects.toThrow('[ERROR] Missing MORPH_API_KEY');
   });
 
   it('intercepts "edit" tool via tool.execute.before hook and throws error', async () => {
-    const plugin = FastApplyPlugin();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const plugin = await FastApplyPlugin({} as any);
 
-    const beforeHook = plugin?.hooks?.['tool.execute.before'];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const beforeHook = (plugin as any)['tool.execute.before'];
     expect(beforeHook).toBeDefined();
 
-    const context = { tool: { name: 'edit' } };
+    const input = { tool: 'edit' };
 
-    await expect(beforeHook(context)).rejects.toThrow("Gunakan tool 'fastApply'");
+    await expect(beforeHook(input, {})).rejects.toThrow("Gunakan tool 'fastApply'");
   });
 
   it('fastApply tool routes to morph-v3-fast for easy tasks', async () => {
-    const plugin = FastApplyPlugin();
-    const fastApplyTool = plugin?.tools?.find((t: { name: string }) => t.name === 'fastApply');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const plugin = await FastApplyPlugin({ directory: '/workspace' } as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fastApplyTool = (plugin as any).tool?.fastApply;
 
     expect(fastApplyTool).toBeDefined();
 
@@ -76,7 +91,7 @@ describe('FastApplyPlugin', () => {
 
     const context = { directory: '/workspace' };
 
-    await fastApplyTool!.execute(args, context);
+    await fastApplyTool.execute(args, context);
 
     expect(fs.readFile).toHaveBeenCalledWith('/workspace/test.ts', 'utf-8');
     expect(mockMorphClient.routers.raw.classify).toHaveBeenCalledWith({
@@ -97,8 +112,10 @@ describe('FastApplyPlugin', () => {
   });
 
   it('fastApply tool routes to morph-v3-large for hard tasks', async () => {
-    const plugin = FastApplyPlugin();
-    const fastApplyTool = plugin?.tools?.find((t: { name: string }) => t.name === 'fastApply');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const plugin = await FastApplyPlugin({ directory: '/workspace' } as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fastApplyTool = (plugin as any).tool?.fastApply;
 
     expect(fastApplyTool).toBeDefined();
 
@@ -124,7 +141,7 @@ describe('FastApplyPlugin', () => {
 
     const context = { directory: '/workspace' };
 
-    await fastApplyTool!.execute(args, context);
+    await fastApplyTool.execute(args, context);
 
     expect(mockMorphClient.routers.raw.classify).toHaveBeenCalledWith({
       input: 'refactor entire module',
@@ -139,8 +156,10 @@ describe('FastApplyPlugin', () => {
   });
 
   it('throws error with prefix [ERROR] if fastApply fails (e.g., file not found)', async () => {
-    const plugin = FastApplyPlugin();
-    const fastApplyTool = plugin?.tools?.find((t: { name: string }) => t.name === 'fastApply');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const plugin = await FastApplyPlugin({ directory: '/workspace' } as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fastApplyTool = (plugin as any).tool?.fastApply;
 
     expect(fastApplyTool).toBeDefined();
 
@@ -161,6 +180,6 @@ describe('FastApplyPlugin', () => {
 
     const context = { directory: '/workspace' };
 
-    await expect(fastApplyTool!.execute(args, context)).rejects.toThrow(/\[ERROR\]/);
+    await expect(fastApplyTool.execute(args, context)).rejects.toThrow(/\[ERROR\]/);
   });
 });
