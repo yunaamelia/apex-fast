@@ -1,65 +1,79 @@
 # AGENTS.md
 
-## Build & Test Commands
+**Generated:** 2026-02-20
+**Commit:** 1fcf9b0
+**Branch:** main
 
-- **Build**: `mise run build` or `bun build ./src/index.ts --outdir dist --target bun`
-- **Test**: `mise run test` or `bun test`
-- **Single Test**: `bun test BackgroundTask.test.ts` (use file glob pattern)
-- **Watch Mode**: `bun test --watch`
-- **Lint**: `mise run lint` (eslint)
-- **Fix Lint**: `mise run lint:fix` (eslint --fix)
-- **Format**: `mise run format` (prettier)
+## OVERVIEW
 
-## Code Style Guidelines
+apex-fast is a Bun module (ES2021+) using TypeScript, Vitest, ESLint, Prettier. Early-stage project with extensive AI agent framework in `.agent/`.
 
-### Imports & Module System
+## STRUCTURE
 
-- Use ES6 `import`/`export` syntax (module: "ESNext", type: "module")
-- Group imports: external libraries first, then internal modules
-- Use explicit file extensions (`.ts`) for internal imports
+```
+./
+├── src/           # Source code (index.ts entry point)
+├── .agent/        # AI agent framework (rules, agents, skills, workflows)
+├── .mise/tasks/   # All task definitions (no package.json scripts)
+└── dist/          # Build output (gitignored)
+```
 
-### Formatting (Prettier)
+## WHERE TO LOOK
 
-- **Single quotes** (`singleQuote: true`)
-- **Line width**: 100 characters
-- **Tab width**: 2 spaces
-- **Trailing commas**: ES5 (no trailing commas in function parameters)
-- **Semicolons**: enabled
+| Task         | Location                     | Notes                       |
+| ------------ | ---------------------------- | --------------------------- |
+| Main entry   | `src/index.ts`               | Public API exports          |
+| Build config | `mise.toml` + `.mise/tasks/` | All commands via mise       |
+| AI rules     | `.agent/rules/GEMINI.md`     | P0 priority - read first    |
+| Validation   | `.agent/scripts/`            | checklist.py, verify_all.py |
 
-### TypeScript & Naming
+## CONVENTIONS
 
-- **NeverNesters**: avoid deeply nested structures. Always exit early.
-- **Strict mode**: enforced (`"strict": true`)
-- **Classes**: PascalCase (e.g., `BackgroundTask`, `BackgroundTaskManager`)
-- **Methods/properties**: camelCase
-- **Status strings**: use union types (e.g., `'pending' | 'running' | 'completed' | 'failed' | 'cancelled'`)
-- **Explicit types**: prefer explicit type annotations over inference
-- **Return types**: optional (not required but recommended for public methods)
+- **Imports:** External first, then internal. Explicit `.ts` extensions. No barrel exports.
+- **Types:** Strict mode. Never `any`, `@ts-ignore`, `@ts-expect-error`, `as any`.
+- **Error Handling:** Check `error instanceof Error`. Prefix `[ERROR]`. No empty catches.
+- **Pattern:** NeverNest (early returns over deep nesting).
 
-### Error Handling
+## NAMING
 
-- Check error type before accessing error properties: `error instanceof Error ? error.toString() : String(error)`
-- Log errors with `[ERROR]` prefix for consistency
-- Always provide error context when recording output
+| Type               | Convention             | Example         |
+| ------------------ | ---------------------- | --------------- |
+| Classes            | `PascalCase`           | `FastApply.ts`  |
+| Methods/Properties | `camelCase`            | `applyEdit()`   |
+| Constants          | `SCREAMING_SNAKE_CASE` | `MAX_RETRIES`   |
+| Utilities          | `kebab-case.ts`        | `file-utils.ts` |
 
-### Linting Rules
+## COMMANDS
 
-- `@typescript-eslint/no-explicit-any`: warn (avoid `any` type)
-- `no-console`: error (minimize console logs)
-- `prettier/prettier`: error (formatting violations are errors)
+```bash
+mise run setup     # Install dependencies
+mise run build     # Build to dist/
+mise run test      # Run Vitest
+mise run lint      # ESLint (fix: mise run lint:fix)
+mise run typecheck # tsc --noEmit
+```
 
-## Testing
+## ANTI-PATTERNS
 
-- Framework: **vitest** with `describe` & `it` blocks
-- Style: Descriptive nested test cases with clear expectations
-- Assertion library: `expect()` (vitest)
+- `any`, `@ts-ignore`, `@ts-expect-error`, `as any` - **NEVER**
+- Empty catch blocks - **NEVER**
+- Barrel exports - **NEVER**
+- Deep nesting - **AVOID** (use early returns)
 
-## Memory
+## TESTING
 
-- Store temporary data in `.memory/` directory (gitignored)
+- Framework: Vitest (`describe`, `it`, `expect`)
+- Location: `*.test.ts` alongside source files
 
-## Project Context
+## CI/CD
 
-- **Type**: ES Module package for Bun modules
-- **Target**: Bun runtime, ES2021+
-- **Purpose**: General-purpose Bun module development
+- PRs: `setup` → `lint` → `test` → `build`
+- Releases: Release Please + NPM Trusted Publishing
+- Branches: `feat/*`, `fix/*`, `docs/*`, `chore/*`
+- Commits: Conventional (`feat:`, `fix:`, `docs:`, `chore:`)
+
+## RULE PRIORITY
+
+P0 (`.agent/rules/GEMINI.md`) > P1 (Agent `.md`) > P2 (`SKILL.md`)
+
+**Before implementation:** Read GEMINI.md → Check agent frontmatter → Load skills.
