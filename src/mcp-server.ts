@@ -41,7 +41,7 @@ async function runMcpServer() {
     {
       filePath: z.string().describe('Relative path to the file to edit'),
       instructions: z.string().describe('Clear instructions on what to change'),
-      codeEdit: z.string().describe('The specific code snippet to edit (optional)'),
+      codeEdit: z.string().optional().describe('The specific code snippet to edit (optional)'),
     },
     async (args) => {
       try {

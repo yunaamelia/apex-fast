@@ -21,7 +21,10 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
         args: {
           filePath: tool.schema.string().describe('Relative path to the file to edit'),
           instructions: tool.schema.string().describe('Clear instructions on what to change'),
-          codeEdit: tool.schema.string().describe('The specific code snippet to edit (optional)'),
+          codeEdit: tool.schema
+            .string()
+            .optional()
+            .describe('The specific code snippet to edit (optional)'),
         },
         execute: async (args, context) => {
           // Fallback to context.directory if ctx.directory is somehow missing (in tests perhaps)
@@ -49,7 +52,7 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
             result = await applyEdit({
               originalCode,
               instructions: args.instructions,
-              codeEdit: args.codeEdit,
+              codeEdit: args.codeEdit || '',
               filepath: absolutePath,
               model: selectedModel,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
