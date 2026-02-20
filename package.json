@@ -10,7 +10,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "apex-fast-mcp": "./dist/mcp-server.js"
+    "apex-fast-mcp": "dist/mcp-server.js"
   },
   "exports": {
     ".": {
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yunaamelia/apex-fast.git"
+    "url": "git+https://github.com/yunaamelia/apex-fast.git"
   },
   "publishConfig": {
     "access": "public"
