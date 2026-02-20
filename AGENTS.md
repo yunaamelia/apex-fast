@@ -1,65 +1,65 @@
 # AGENTS.md
 
-## Build & Test Commands
+**Generated:** 2026-02-20
+**Commit:** e450823
 
-- **Build**: `mise run build` or `bun build ./src/index.ts --outdir dist --target bun`
-- **Test**: `mise run test` or `bun test`
-- **Single Test**: `bun test BackgroundTask.test.ts` (use file glob pattern)
-- **Watch Mode**: `bun test --watch`
-- **Lint**: `mise run lint` (eslint)
-- **Fix Lint**: `mise run lint:fix` (eslint --fix)
-- **Format**: `mise run format` (prettier)
+## OVERVIEW
 
-## Code Style Guidelines
+Bun/TypeScript library for AI agents to edit code/files. Includes MCP server (stdio + SSE modes). Published as `apex-fast` to npm.
 
-### Imports & Module System
+## STRUCTURE
 
-- Use ES6 `import`/`export` syntax (module: "ESNext", type: "module")
-- Group imports: external libraries first, then internal modules
-- Use explicit file extensions (`.ts`) for internal imports
+```
+.
+├── src/           # Source (4 TS files + tests co-located)
+├── dist/          # Compiled output (gitignored)
+├── .agent/        # Antigravity Kit framework (18 agents, 37 skills)
+├── .sisyphus/     # Planning tool (unrelated to library)
+└── .ansible/      # Infra automation (unrelated to library)
+```
 
-### Formatting (Prettier)
+## WHERE TO LOOK
 
-- **Single quotes** (`singleQuote: true`)
-- **Line width**: 100 characters
-- **Tab width**: 2 spaces
-- **Trailing commas**: ES5 (no trailing commas in function parameters)
-- **Semicolons**: enabled
+| Task | Location |
+|------|----------|
+| Library entry | `src/index.ts` → `dist/index.js` |
+| CLI/MCP server | `src/mcp-server.ts` → `dist/mcp-server.js` |
+| Core plugin | `src/fast-apply-plugin.ts` |
+| Tests | `src/*.test.ts` (co-located with source) |
+| Agent framework | `.agent/AGENTS.md` |
 
-### TypeScript & Naming
+## CONVENTIONS
 
-- **NeverNesters**: avoid deeply nested structures. Always exit early.
-- **Strict mode**: enforced (`"strict": true`)
-- **Classes**: PascalCase (e.g., `BackgroundTask`, `BackgroundTaskManager`)
-- **Methods/properties**: camelCase
-- **Status strings**: use union types (e.g., `'pending' | 'running' | 'completed' | 'failed' | 'cancelled'`)
-- **Explicit types**: prefer explicit type annotations over inference
-- **Return types**: optional (not required but recommended for public methods)
+- **Tests**: Co-located with source (`*.test.ts`), not separate directory
+- **Imports**: Group external first, internal second. Use explicit `.ts` extensions
+- **NeverNest**: Exit early, avoid deep nesting
+- **Error handling**: Check `error instanceof Error` before accessing props. Prefix with `[ERROR]`
+- **Naming**: Classes `PascalCase`, methods `camelCase`, files `kebab-case.ts`
 
-### Error Handling
+## ANTI-PATTERNS
 
-- Check error type before accessing error properties: `error instanceof Error ? error.toString() : String(error)`
-- Log errors with `[ERROR]` prefix for consistency
-- Always provide error context when recording output
+- `as any`, `@ts-ignore`, `@ts-expect-error` — **NEVER**
+- Empty catch blocks — **NEVER**
+- Deleting failing tests — **NEVER**
+- Barrel exports — **avoid** (index.ts re-export is exception)
 
-### Linting Rules
+## COMMANDS
 
-- `@typescript-eslint/no-explicit-any`: warn (avoid `any` type)
-- `no-console`: error (minimize console logs)
-- `prettier/prettier`: error (formatting violations are errors)
+```bash
+mise run build     # or: bun build ./src/index.ts --outdir dist --target bun
+mise run test      # or: bun test (vitest)
+mise run lint      # or: eslint .
+mise run lint:fix  # eslint --fix
+mise run format    # prettier --write
+```
 
-## Testing
+## CI/CD
 
-- Framework: **vitest** with `describe` & `it` blocks
-- Style: Descriptive nested test cases with clear expectations
-- Assertion library: `expect()` (vitest)
+- **PRs**: `mise run setup` → `lint` → `test` → `build`
+- **Release**: Release Please on main → dispatch to publish
+- **Publish**: NPM OIDC Trusted Publishing (no API tokens)
 
-## Memory
+## NOTES
 
-- Store temporary data in `.memory/` directory (gitignored)
-
-## Project Context
-
-- **Type**: ES Module package for Bun modules
-- **Target**: Bun runtime, ES2021+
-- **Purpose**: General-purpose Bun module development
+- package.json `files` array references non-existent `src/version.ts`
+- `mise run` tasks NOT defined in mise.toml (runs package.json scripts by convention)
