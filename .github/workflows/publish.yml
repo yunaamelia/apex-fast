@@ -36,7 +36,10 @@ jobs:
         uses: simenandre/setup-inputs@v1
 
       - name: Publish to npm with OIDC
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > .npmrc
           TAG="${{ steps.inputs.outputs.tag }}"
           if [ -z "$TAG" ]; then
             TAG="latest"
