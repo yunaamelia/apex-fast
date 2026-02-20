@@ -3,22 +3,25 @@
   "version": "0.0.1",
   "description": "Fast Apply is a tool that you give to your AI agent that allows it to edit code or files.",
   "author": {
-    "name": "When building AI agents that edit code or filesZulu Dev",
+    "name": "Zulu Dev",
     "email": "root@aistorytell.me"
   },
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "apex-fast-mcp": "./dist/mcp-server.js"
   },
   "exports": {
     ".": {
+      "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     }
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/JRedeker/opencode-morph-fast-apply"
+    "url": "https://github.com/yunaamelia/apex-fast.git"
   },
   "publishConfig": {
     "access": "public"
