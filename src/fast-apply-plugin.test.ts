@@ -46,12 +46,12 @@ describe('fastApplyPlugin', () => {
 
     expect(fastApplyTool).toBeDefined();
 
-    vi.mocked(fs.readFile).mockResolvedValue('original file content');
-    vi.mocked(applyEdit).mockResolvedValue({
+    (fs.readFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue('original file content');
+    (applyEdit as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       success: true,
       mergedCode: 'modified file content',
       changes: { added: 1, removed: 0, total: 1 },
-    } as any);
+    });
 
     const args = {
       filePath: 'test.ts',
@@ -61,13 +61,14 @@ describe('fastApplyPlugin', () => {
 
     const context = { directory: '/workspace' };
 
-    await fastApplyTool.execute(args, context);
+    await fastApplyTool!.execute(args, context);
 
     expect(fs.readFile).toHaveBeenCalledWith('/workspace/test.ts', 'utf-8');
     expect(applyEdit).toHaveBeenCalledWith({
-      code: 'original file content',
+      originalCode: 'original file content',
       instructions: 'add console.log',
       codeEdit: 'console.log("hello");',
+      filepath: '/workspace/test.ts',
     });
     expect(fs.writeFile).toHaveBeenCalledWith(
       '/workspace/test.ts',
@@ -82,7 +83,9 @@ describe('fastApplyPlugin', () => {
 
     expect(fastApplyTool).toBeDefined();
 
-    vi.mocked(fs.readFile).mockRejectedValue(new Error('ENOENT: no such file'));
+    (fs.readFile as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('ENOENT: no such file')
+    );
 
     const args = {
       filePath: 'invalid.ts',
@@ -92,6 +95,6 @@ describe('fastApplyPlugin', () => {
 
     const context = { directory: '/workspace' };
 
-    await expect(fastApplyTool.execute(args, context)).rejects.toThrow(/\[ERROR\]/);
+    await expect(fastApplyTool!.execute(args, context)).rejects.toThrow(/\[ERROR\]/);
   });
 });
