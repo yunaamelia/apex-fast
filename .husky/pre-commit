@@ -1,1 +1,6 @@
-npx lint-staged
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+mise run lint
+mise run test
+mise run build
