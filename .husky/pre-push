@@ -1,0 +1,2 @@
+npm run test
+python .agent/scripts/checklist.py .
