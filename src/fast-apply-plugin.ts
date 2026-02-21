@@ -108,5 +108,19 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
         },
       }),
     },
+    'tool.execute.after': async (input, output) => {
+      if (input.tool === 'fastApply') {
+        const fileMatch = output.output.match(/Successfully applied changes to (.+)/);
+
+        if (fileMatch) {
+          output.title = `Morph: applied changes to ${fileMatch[1]}`;
+        }
+
+        output.metadata = {
+          ...output.metadata,
+          provider: 'morph',
+        };
+      }
+    },
   };
 };
