@@ -28,6 +28,7 @@
   },
   "files": [
     "dist",
+    "Morph-Rules.md",
     "src/version.ts"
   ],
   "scripts": {
