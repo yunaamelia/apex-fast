@@ -50,19 +50,6 @@ describe('FastApplyPlugin', () => {
     await expect(FastApplyPlugin({} as any)).rejects.toThrow('[ERROR] Missing MORPH_API_KEY');
   });
 
-  it('intercepts "edit" tool via tool.execute.before hook and throws error', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const plugin = await FastApplyPlugin({} as any);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const beforeHook = (plugin as any)['tool.execute.before'];
-    expect(beforeHook).toBeDefined();
-
-    const input = { tool: 'edit' };
-
-    await expect(beforeHook(input, {})).rejects.toThrow("Gunakan tool 'fastApply'");
-  });
-
   it('fastApply tool routes to morph-v3-fast for easy tasks', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const plugin = await FastApplyPlugin({ directory: '/workspace' } as any);

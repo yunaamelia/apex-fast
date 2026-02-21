@@ -8,7 +8,7 @@
 
 - ⚡ **10x Faster** — Uses partial snippets, no need to read the entire file
 - 🧠 **Smart Routing** — Automatically selects `morph-v3-fast` or `morph-v3-large` models based on instruction complexity
-- 🔒 **Overrides `edit` Tool** — Blocks the built-in `edit` tool and directs the AI to use `fastApply` instead
+- 🤝 **Complements `edit` Tool** — Works alongside optimal edit tools without blocking them, letting AI choose the right tool for the job
 - 🛡️ **Pre-flight Validation & Readonly Agents Protection** — Prevents catastrophic accidental deletions and disables edits in `plan` or `explore` modes.
 - 🛠️ **MCP Server** — Can be run as a standalone MCP server (local via stdio or remote via SSE)
 

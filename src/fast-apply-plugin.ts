@@ -10,11 +10,6 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
   const morph = new MorphClient({ apiKey: process.env.MORPH_API_KEY });
 
   return {
-    'tool.execute.before': async (input) => {
-      if (input.tool === 'edit') {
-        throw new Error("[ERROR] Gunakan tool 'fastApply' untuk mengedit file agar lebih cepat.");
-      }
-    },
     tool: {
       fastApply: tool({
         description: 'Edit file content using fast apply',
@@ -27,6 +22,8 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
             .describe('The specific code snippet to edit (optional)'),
         },
         execute: async (args, context) => {
+          // eslint-disable-next-line no-console
+          console.log(`[DEBUG] fastApply called for file: ${args.filePath}`);
           // Block usage in readonly agents (plan, explore)
           const READONLY_AGENTS = ['plan', 'explore'];
 
