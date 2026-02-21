@@ -2,12 +2,33 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { type Plugin, tool } from '@opencode-ai/plugin';
 import { applyEdit, MorphClient } from '@morphllm/morphsdk';
+import { createSkillRegistry } from './skills/services/SkillRegistry';
+import { createLogger } from './skills/services/logger';
+import { PluginConfig } from './skills/types';
+import { homedir } from 'node:os';
 
 export const FastApplyPlugin: Plugin = async (ctx) => {
   if (!process.env.MORPH_API_KEY) {
     throw new Error('[ERROR] Missing MORPH_API_KEY');
   }
   const morph = new MorphClient({ apiKey: process.env.MORPH_API_KEY });
+
+  // Initialize SkillRegistry
+  const config: PluginConfig = {
+    debug: false,
+    basePaths: [
+      path.join(ctx.directory || process.cwd(), '.opencode/skills'),
+      path.join(homedir(), '.config/opencode/skills'),
+      path.join(homedir(), '.opencode/skills'),
+    ],
+    promptRenderer: 'xml', // default
+  };
+  const logger = createLogger(config);
+  const registry = await createSkillRegistry(config, logger);
+
+  // We trigger initialization, but we don't block plugin setup.
+  // We'll await `whenReady()` inside the tool execution.
+  registry.initialise();
 
   return {
     'tool.execute.before': async (input) => {
@@ -73,6 +94,31 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
               }
             }
 
+            // Await skill registry
+            await registry.controller.ready.whenReady();
+
+            // Look for matching skills
+            let enrichedInstructions = args.instructions;
+            let activeSkillsStr = '';
+
+            // We use the instructions text to run a free text search against the registry
+            const skillSearchResults = registry.search(args.instructions);
+
+            // Only inject if we have matches. Take the top 1 or 2 to avoid blowing up prompt size.
+            // A realistic threshold: if a phrase matches well then let's use it.
+            if (skillSearchResults.matches.length > 0) {
+              const topSkills = skillSearchResults.matches.slice(0, 2);
+              const skillTexts = topSkills.map(
+                (s) =>
+                  `<Skill name="${s.name}" description="${s.description}">\n${s.content}\n</Skill>`
+              );
+              activeSkillsStr = skillTexts.join('\n\n');
+              enrichedInstructions = `${args.instructions}\n\n[SYSTEM: Apply the following skill guidelines when making edits:]\n${activeSkillsStr}`;
+              logger.debug(
+                `[FastApply] Injected ${topSkills.length} skills into morph instructions`
+              );
+            }
+
             // Check difficulty to route to the correct apply model
             const { difficulty } = await morph.routers.raw.classify({
               input: args.instructions,
@@ -81,7 +127,7 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
 
             result = await applyEdit({
               originalCode,
-              instructions: args.instructions,
+              instructions: enrichedInstructions,
               codeEdit: args.codeEdit || '',
               filepath: absolutePath,
               model: selectedModel,

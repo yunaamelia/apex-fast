@@ -32,6 +32,20 @@ vi.mock('@morphllm/morphsdk', () => {
   };
 });
 
+vi.mock('./skills/services/SkillRegistry', () => {
+  return {
+    createSkillRegistry: vi.fn().mockImplementation(() => ({
+      initialise: vi.fn(),
+      controller: {
+        ready: {
+          whenReady: vi.fn().mockResolvedValue(true),
+        },
+      },
+      search: vi.fn().mockReturnValue({ matches: [] }),
+    })),
+  };
+});
+
 describe('FastApplyPlugin', () => {
   const originalEnv = process.env.MORPH_API_KEY;
 
