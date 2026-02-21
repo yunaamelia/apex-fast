@@ -50,8 +50,6 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
             .describe('The specific code snippet to edit (optional)'),
         },
         execute: async (args, context) => {
-          // eslint-disable-next-line no-console
-          console.log(`[DEBUG] fastApply called for file: ${args.filePath}`);
           // Block usage in readonly agents (plan, explore)
           const READONLY_AGENTS = ['plan', 'explore'];
 
