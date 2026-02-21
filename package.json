@@ -1,6 +1,6 @@
 {
   "name": "apex-fast",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Fast Apply is a tool that you give to your AI agent that allows it to edit code or files.",
   "author": {
     "name": "Zulu Dev",
