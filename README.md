@@ -1,72 +1,69 @@
 # apex-fast
 
-**apex-fast** adalah plugin untuk [OpenCode AI](https://opencode.ai) yang mengintegrasikan [Morph Fast Apply](https://morphllm.com) — sebuah model AI khusus pengeditan kode dengan kecepatan 10.500+ token/detik dan akurasi 98%. Plugin ini menggantikan alat edit bawaan dengan `morph_edit` yang jauh lebih cepat untuk file besar dan perubahan yang kompleks.
+**apex-fast** is a plugin for [OpenCode AI](https://opencode.ai) that integrates [Morph Fast Apply](https://morphllm.com) — an AI model specialized for code editing boasting 10,500+ tokens/second speeds and 98% accuracy. This plugin overrides the built-in edit tool with `morph_edit`, which is significantly faster for large files and complex changes.
 
 ---
 
-## ✨ Fitur
+## ✨ Features
 
-- ⚡ **10x Lebih Cepat** — Gunakan snippet parsial, tanpa perlu membaca seluruh file
-- 🧠 **Smart Routing** — Secara otomatis memilih model `morph-v3-fast` atau `morph-v3-large` berdasarkan kompleksitas instruksi
-- 🔒 **Override Tool `edit`** — Memblokir penggunaan tool `edit` bawaan dan mengarahkan AI menggunakan `fastApply`
-- 🛠️ **MCP Server** — Dapat dijalankan sebagai server MCP mandiri (lokal via stdio atau remote via SSE)
-
----
-
-## 🚀 Cara Instalasi
-
-### Langkah 1: Dapatkan Morph API Key
-
-Daftar dan dapatkan API key Anda di **[morphllm.com](https://morphllm.com)**.
+- ⚡ **10x Faster** — Uses partial snippets, no need to read the entire file
+- 🧠 **Smart Routing** — Automatically selects `morph-v3-fast` or `morph-v3-large` models based on instruction complexity
+- 🔒 **Overrides `edit` Tool** — Blocks the built-in `edit` tool and directs the AI to use `fastApply` instead
+- 🛡️ **Pre-flight Validation & Readonly Agents Protection** — Prevents catastrophic accidental deletions and disables edits in `plan` or `explore` modes.
+- 🛠️ **MCP Server** — Can be run as a standalone MCP server (local via stdio or remote via SSE)
 
 ---
 
-### Langkah 2: Konfigurasi Plugin di OpenCode
+## 🚀 Installation
 
-Edit file `~/.config/opencode/opencode.json` dan tambahkan plugin berikut:
+### Step 1: Get Morph API Key
+
+Sign up and get your API key at **[morphllm.com](https://morphllm.com)**.
+
+---
+
+### Step 2: Configure Plugin in OpenCode
+
+Edit your `~/.config/opencode/opencode.json` file and add the plugin:
 
 ```json
 {
-  "plugin": [
-    "apex-fast@latest"
-  ],
-  "instructions": [
-    "Follow Instructions in `~/.config/opencode/Morph-Rules.md`"
-  ]
+  "plugin": ["apex-fast@latest"],
+  "instructions": ["Follow Instructions in `~/.config/opencode/Morph-Rules.md`"]
 }
 ```
 
-> **Catatan:** Field `"instructions"` memberitahu AI untuk selalu membaca file `Morph-Rules.md` sebagai panduan kapan harus menggunakan `fastApply` vs tool lainnya.
+> **Note:** The `"instructions"` field tells the AI to read `Morph-Rules.md` as its guide on when to use `fastApply` vs other tools.
 
 ---
 
-### Langkah 3: Install Morph-Rules.md *(WAJIB)*
+### Step 3: Install `Morph-Rules.md` _(REQUIRED)_
 
-File `Morph-Rules.md` adalah panduan perilaku AI yang **wajib** disalin ke direktori konfigurasi OpenCode Anda. Tanpa file ini, AI tidak akan tahu kapan dan bagaimana menggunakan `morph_edit` dengan benar.
+The `Morph-Rules.md` file acts as the primary behavioral guideline for the AI. You **must** copy it into your OpenCode config directory. Without it, the AI won't know how to use `morph_edit` properly.
 
 ```bash
-# Download Morph-Rules.md ke konfigurasi opencode Anda
+# Download Morph-Rules.md into your OpenCode config directory
 curl -o ~/.config/opencode/Morph-Rules.md \
   https://raw.githubusercontent.com/yunaamelia/apex-fast/main/Morph-Rules.md
 ```
 
-Atau salin secara manual dari repositori ini ke `~/.config/opencode/Morph-Rules.md`.
+Alternatively, manually copy it from this repository.
 
 ---
 
-### Langkah 4: Set Environment Variable
+### Step 4: Set Environment Variable
 
-Plugin memerlukan `MORPH_API_KEY` yang tersedia di environment.
+The plugin requires the `MORPH_API_KEY` to be available in your environment.
 
-**Cara permanen (direkomendasikan):**
+**Permanent approach (recommended):**
 
 ```bash
-# Tambahkan ke ~/.bashrc atau ~/.zshrc
+# Add to ~/.bashrc or ~/.zshrc
 echo 'export MORPH_API_KEY="sk-your-key-here"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-**Atau** tambahkan langsung ke file `.env` di direktori kerja Anda:
+**Or** add it directly to a `.env` file in your working directory:
 
 ```env
 MORPH_API_KEY=sk-your-key-here
@@ -74,21 +71,22 @@ MORPH_API_KEY=sk-your-key-here
 
 ---
 
-## 🛠️ Cara Menggunakan Tool `fastApply`
+## 🛠️ Using the `fastApply` Tool
 
-Setelah plugin aktif, AI Anda akan memiliki akses ke tool `fastApply`. Gunakan sintaks `// ... existing code ...` sebagai penanda untuk kode yang tidak berubah.
+Once the plugin is active, your AI will have access to the `fastApply` tool. Use the syntax `// ... existing code ...` as a marker for unchanged code.
 
-### Parameter
+### Parameters
 
-| Parameter      | Tipe     | Wajib | Deskripsi                                                   |
-|----------------|----------|-------|-------------------------------------------------------------|
-| `filePath`     | `string` | ✅    | Path relatif ke file yang akan diedit                        |
-| `instructions` | `string` | ✅    | Instruksi spesifik tentang apa yang harus diubah             |
-| `codeEdit`     | `string` | ❌    | Snippet kode parsial dengan penanda `// ... existing code ...` |
+| Parameter      | Type     | Required | Description                                                   |
+| -------------- | -------- | -------- | ------------------------------------------------------------- |
+| `filePath`     | `string` | ✅       | Relative path to the file you want to edit                    |
+| `instructions` | `string` | ✅       | Specific instructions detailing what to change                |
+| `codeEdit`     | `string` | ❌       | Partial code snippet using `// ... existing code ...` markers |
 
-### Contoh Penggunaan
+### Usage Examples
 
-**Menambahkan fungsi baru:**
+**Adding a new function:**
+
 ```javascript
 // ... existing code ...
 import { newDep } from './newDep';
@@ -100,7 +98,8 @@ function newFeature() {
 // ... existing code ...
 ```
 
-**Memodifikasi fungsi yang ada:**
+**Modifying existing code:**
+
 ```javascript
 // ... existing code ...
 function existingFunc(param) {
@@ -111,40 +110,41 @@ function existingFunc(param) {
 // ... existing code ...
 ```
 
-> ⚠️ **PENTING:** Selalu sertakan `// ... existing code ...` di awal dan akhir snippet Anda. Jika tidak, Morph akan **menghapus** kode di luar snippet tersebut.
+> ⚠️ **IMPORTANT:** Always include `// ... existing code ...` at the beginning and end of your snippet. Otherwise, Morph will **delete** the code outside of the snippet.
 
 ---
 
-## 📋 Panduan Memilih Tool
+## 📋 Tool Selection Guide
 
-| Situasi | Tool | Alasan |
-|---------|------|--------|
-| Penggantian string kecil & tepat | `edit` | Paling cepat, tanpa API call |
-| Rename variabel/fungsi sederhana | `edit` | Presisi, tidak perlu AI |
-| **File besar (300+ baris)** | `fastApply` | 10x lebih cepat, snippet parsial |
-| **Banyak perubahan tersebar** | `fastApply` | Batch changes dalam satu pass |
-| **Refaktorisasi kompleks** | `fastApply` | AI memahami konteks lebih baik |
-| **Edit sensitif terhadap whitespace** | `fastApply` | Lebih toleran terhadap perbedaan format |
+| Situation                        | Tool        | Reason                                    |
+| -------------------------------- | ----------- | ----------------------------------------- |
+| Small & exact string replacement | `edit`      | Fastest, no API call                      |
+| Simple variable/function rename  | `edit`      | Precise, no AI needed                     |
+| **Large files (300+ lines)**     | `fastApply` | 10x faster, partial snippets              |
+| **Multiple scattered changes**   | `fastApply` | Batch changes in one pass                 |
+| **Complex refactoring**          | `fastApply` | AI parses context better                  |
+| **Whitespace-sensitive edits**   | `fastApply` | High tolerance for formatting differences |
 
 ---
 
-## 🖥️ Menjalankan sebagai MCP Server (Opsional)
+## 🖥️ Running as an MCP Server (Optional)
 
-Plugin ini juga bisa dijalankan sebagai **MCP Server mandiri** untuk digunakan oleh klien MCP lain (misalnya Claude Desktop).
+This plugin can also run as a **standalone MCP Server** for use with other MCP clients (like Claude Desktop).
 
-### Mode Stdio (Default)
+### Stdio Mode (Default)
 
 ```bash
 MORPH_API_KEY=sk-your-key npx apex-fast-mcp
 ```
 
-### Mode SSE (Remote/HTTP)
+### SSE Mode (Remote/HTTP)
 
 ```bash
 MORPH_API_KEY=sk-your-key npx apex-fast-mcp sse 3000
 ```
 
-Server akan berjalan di:
+The server will run on:
+
 - **SSE Endpoint:** `http://localhost:3000/sse`
 - **Message Endpoint:** `http://localhost:3000/message`
 
@@ -154,48 +154,55 @@ Server akan berjalan di:
 
 ### Error: `[ERROR] Missing MORPH_API_KEY`
 
-Plugin tidak dapat menemukan API key. Pastikan:
-- Environment variable `MORPH_API_KEY` telah di-set
-- Jika menggunakan `.env`, pastikan file tersebut ada di direktori kerja
+The plugin cannot find the API key. Ensure:
+
+- The `MORPH_API_KEY` environment variable is set
+- If using `.env`, the file exists in the current working directory
 
 ### Error: `[ERROR] Failed to read file`
 
-File yang diberikan pada `filePath` tidak dapat dibaca. Pastikan:
-- Path yang diberikan adalah path **relatif** dari direktori kerja saat ini
-- File tersebut benar-benar ada di lokasi yang ditentukan
+The specific `filePath` cannot be read. Ensure:
 
-### Fallback jika Morph API Gagal
+- The path provided is **relative** to the current working directory
+- The file actually exists
 
-Jika Morph API mengalami timeout atau rate limit:
-1. Plugin akan mengembalikan pesan error dengan detail
-2. Gunakan tool `edit` bawaan sebagai fallback
-3. Tool `edit` memerlukan pencocokan string yang tepat
+### Pre-flight Validation Error
+
+If you attempt to edit a large file (>10 lines) and omit the `// ... existing code ...` markers, the plugin will block the tool call to prevent catastrophic code loss. The AI should simply rewrite the `codeEdit` parameter correctly wrapped inside markers.
+
+### Fallback Behavior for Morph API Failure
+
+If Morph API times out or rate limits:
+
+1. The plugin will return an error message containing the specifics
+2. The AI can fall back to using the built-in `edit` tool
+3. The built-in `edit` tool requires exact string matching
 
 ---
 
 ## 🔧 Development
 
 ```bash
-mise run build     # Build project
-mise run test      # Jalankan tests
-mise run lint      # Lint kode
-mise run lint:fix  # Perbaiki masalah lint otomatis
+mise run build     # Build the project
+mise run test      # Run the test suite
+mise run lint      # Lint the code
+mise run lint:fix  # Automatically fix linting issues
 ```
 
 ---
 
 ## 📦 Release
 
-Lihat [RELEASE.md](RELEASE.md) untuk instruksi cara merilis versi baru.
+See the [RELEASE.md](RELEASE.md) file for instructions on how to release a new version.
 
 ---
 
-## 🤝 Kontribusi
+## 🤝 Contributing
 
-Kontribusi sangat disambut! Silakan buka *issue* atau kirim *pull request* di repositori GitHub.
+Contributions are very welcome! Please open an issue or submit a pull request on the GitHub repository.
 
 ---
 
-## 📄 Lisensi
+## 📄 License
 
-Lihat [LICENSE](LICENSE) untuk detail.
+See the [LICENSE](LICENSE) file for details.

@@ -28,8 +28,7 @@
   },
   "files": [
     "dist",
-    "Morph-Rules.md",
-    "src/version.ts"
+    "Morph-Rules.md"
   ],
   "scripts": {
     "prepare": "husky",

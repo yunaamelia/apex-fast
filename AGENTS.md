@@ -20,13 +20,13 @@ Bun/TypeScript library for AI agents to edit code/files. Includes MCP server (st
 
 ## WHERE TO LOOK
 
-| Task | Location |
-|------|----------|
-| Library entry | `src/index.ts` → `dist/index.js` |
-| CLI/MCP server | `src/mcp-server.ts` → `dist/mcp-server.js` |
-| Core plugin | `src/fast-apply-plugin.ts` |
-| Tests | `src/*.test.ts` (co-located with source) |
-| Agent framework | `.agent/AGENTS.md` |
+| Task            | Location                                   |
+| --------------- | ------------------------------------------ |
+| Library entry   | `src/index.ts` → `dist/index.js`           |
+| CLI/MCP server  | `src/mcp-server.ts` → `dist/mcp-server.js` |
+| Core plugin     | `src/fast-apply-plugin.ts`                 |
+| Tests           | `src/*.test.ts` (co-located with source)   |
+| Agent framework | `.agent/AGENTS.md`                         |
 
 ## CONVENTIONS
 
@@ -61,5 +61,4 @@ mise run format    # prettier --write
 
 ## NOTES
 
-- package.json `files` array references non-existent `src/version.ts`
 - `mise run` tasks NOT defined in mise.toml (runs package.json scripts by convention)

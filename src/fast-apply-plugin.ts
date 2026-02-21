@@ -27,8 +27,22 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
             .describe('The specific code snippet to edit (optional)'),
         },
         execute: async (args, context) => {
+          // Block usage in readonly agents (plan, explore)
+          const READONLY_AGENTS = ['plan', 'explore'];
+
+          if (
+            context &&
+            (context as any).agent &&
+            READONLY_AGENTS.includes((context as any).agent)
+          ) {
+            throw new Error(
+              `[ERROR] fastApply is not available in ${(context as any).agent} mode. Please switch to a build/code mode.`
+            );
+          }
+
           // Fallback to context.directory if ctx.directory is somehow missing (in tests perhaps)
-          const directory = ctx?.directory || context?.directory || process.cwd();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const directory = ctx?.directory || (context as any)?.directory || process.cwd();
           const absolutePath = path.join(directory, args.filePath);
           let originalCode: string;
 

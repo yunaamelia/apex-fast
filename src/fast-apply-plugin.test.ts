@@ -210,6 +210,28 @@ describe('FastApplyPlugin', () => {
     expect(result).toBe('Successfully applied changes to test4.ts');
   });
 
+  it('throws error if triggered in plan or explore mode', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const plugin = await FastApplyPlugin({ directory: '/workspace' } as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fastApplyTool = (plugin as any).tool?.fastApply;
+
+    const args = {
+      filePath: 'test.ts',
+      instructions: 'should fail',
+    };
+
+    const contextPlan = { directory: '/workspace', agent: 'plan' };
+    const contextExplore = { directory: '/workspace', agent: 'explore' };
+
+    await expect(fastApplyTool.execute(args, contextPlan)).rejects.toThrow(
+      '[ERROR] fastApply is not available in plan mode'
+    );
+    await expect(fastApplyTool.execute(args, contextExplore)).rejects.toThrow(
+      '[ERROR] fastApply is not available in explore mode'
+    );
+  });
+
   it('throws error with prefix [ERROR] if fastApply fails (e.g., file not found)', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const plugin = await FastApplyPlugin({ directory: '/workspace' } as any);

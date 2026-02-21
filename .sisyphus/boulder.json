@@ -1,9 +1,6 @@
 {
   "active_plan": "/home/racoondev/my-module/.sisyphus/plans/fast-apply-plugin.md",
   "started_at": "2026-02-20T10:29:23.587Z",
-  "session_ids": [
-    "ses_3859adfa0ffeVuLt4ftDb4UrTx",
-    "ses_3856113e6ffegFyqoE3g6GMgHU"
-  ],
+  "session_ids": ["ses_3859adfa0ffeVuLt4ftDb4UrTx", "ses_3856113e6ffegFyqoE3g6GMgHU"],
   "plan_name": "fast-apply-plugin"
 }
