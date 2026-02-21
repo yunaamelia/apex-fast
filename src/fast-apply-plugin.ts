@@ -17,6 +17,8 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
   const config: PluginConfig = {
     debug: false,
     basePaths: [
+      path.join(ctx.directory || process.cwd(), 'skills'),
+      path.join(ctx.directory || process.cwd(), '.agent/skills'),
       path.join(ctx.directory || process.cwd(), '.opencode/skills'),
       path.join(homedir(), '.config/opencode/skills'),
       path.join(homedir(), '.opencode/skills'),
