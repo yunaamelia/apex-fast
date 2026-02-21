@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#MISE description="Run comprehensive checks: lint, test, build"
+
+set -e
+
+echo "➡️ Running Linting..."
+mise run lint
+
+echo "➡️ Running Tests..."
+mise run test
+
+echo "➡️ Building..."
+mise run build
+
+echo "✅ All validations passed!"

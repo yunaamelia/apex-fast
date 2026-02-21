@@ -10,6 +10,11 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
   const morph = new MorphClient({ apiKey: process.env.MORPH_API_KEY });
 
   return {
+    'tool.execute.before': async (input) => {
+      if (input.tool === 'edit') {
+        throw new Error("[ERROR] Gunakan tool 'fastApply' untuk mengedit file agar lebih cepat.");
+      }
+    },
     tool: {
       fastApply: tool({
         description: 'Edit file content using fast apply',
