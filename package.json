@@ -28,10 +28,12 @@
   },
   "files": [
     "dist",
+    "skills",
     "Morph-Rules.md"
   ],
   "scripts": {
     "prepare": "husky",
+    "postinstall": "node scripts/install-skills.js",
     "test": "vitest run",
     "build": "tsc",
     "start:mcp": "node dist/mcp-server.js",
