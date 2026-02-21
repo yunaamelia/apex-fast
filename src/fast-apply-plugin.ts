@@ -68,7 +68,7 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
           // Fallback to context.directory if ctx.directory is somehow missing (in tests perhaps)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const directory = ctx?.directory || (context as any)?.directory || process.cwd();
-          const absolutePath = path.join(directory, args.filePath);
+          const absolutePath = path.resolve(directory, args.filePath);
           let originalCode: string;
 
           try {
