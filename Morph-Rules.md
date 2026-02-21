@@ -48,6 +48,10 @@ function newFeature() {
 
 **Always wrap your changes with markers at the start AND end** unless you intend to replace the entire file.
 
+### 🛡️ Pre-flight Validation
+
+Jika Anda mengedit sebuah file besar (>10 baris) dan tidak memberikan marker `// ... existing code ...`, plugin ini akan secara **otomatis memblokir (menolak) pengeditan** tersebut. Hal ini difungsikan agar AI tidak menghapus seluruh file tanpa sadar.
+
 ---
 
 ## Instructions Parameter

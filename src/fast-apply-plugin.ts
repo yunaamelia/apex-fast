@@ -43,6 +43,20 @@ export const FastApplyPlugin: Plugin = async (ctx) => {
 
           let result;
           try {
+            // First run preflight validation: protect against catastrophic deletion
+            if (args.codeEdit) {
+              const lines = originalCode.split('\n');
+              const isLargeFile = lines.length > 10;
+              const hasMarkers = args.codeEdit.includes('... existing code ...');
+
+              if (isLargeFile && !hasMarkers) {
+                // Return descriptive error telling AI to wrap changes
+                throw new Error(
+                  "[ERROR] codeEdit missing '// ... existing code ...' markers for file >10 lines. This prevents catastrophic deletion. Please wrap partial edits with markers."
+                );
+              }
+            }
+
             // Check difficulty to route to the correct apply model
             const { difficulty } = await morph.routers.raw.classify({
               input: args.instructions,

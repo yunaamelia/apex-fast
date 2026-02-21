@@ -155,6 +155,61 @@ describe('FastApplyPlugin', () => {
     });
   });
 
+  it('throws error if codeEdit lacks markers and original file > 10 lines', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const plugin = await FastApplyPlugin({ directory: '/workspace' } as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fastApplyTool = (plugin as any).tool?.fastApply;
+
+    // Simulate file > 10 lines
+    const longFileContent = Array.from({ length: 15 }, (_, i) => `line ${i}`).join('\n');
+    (fs.readFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(longFileContent);
+
+    const args = {
+      filePath: 'test3.ts',
+      instructions: 'change line 5',
+      codeEdit: 'console.log("changed");', // Missing markers
+    };
+
+    const context = { directory: '/workspace' };
+
+    await expect(fastApplyTool.execute(args, context)).rejects.toThrow(
+      "codeEdit missing '// ... existing code ...' markers for file >10 lines"
+    );
+  });
+
+  it('allows codeEdit without markers if original file is <= 10 lines', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const plugin = await FastApplyPlugin({ directory: '/workspace' } as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fastApplyTool = (plugin as any).tool?.fastApply;
+
+    // Simulate file <= 10 lines
+    const shortFileContent = Array.from({ length: 5 }, (_, i) => `line ${i}`).join('\n');
+    (fs.readFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(shortFileContent);
+    (applyEdit as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      success: true,
+      mergedCode: 'modified short file',
+      changes: { added: 1, removed: 0, total: 1 },
+    });
+
+    const mockMorphClient = new MorphClient({ apiKey: 'test' });
+    (mockMorphClient.routers.raw.classify as ReturnType<typeof vi.fn>).mockResolvedValue({
+      difficulty: 'easy',
+    });
+
+    const args = {
+      filePath: 'test4.ts',
+      instructions: 'change line 2',
+      codeEdit: 'console.log("changed target");', // Allowed because small file
+    };
+
+    const context = { directory: '/workspace' };
+
+    const result = await fastApplyTool.execute(args, context);
+    expect(result).toBe('Successfully applied changes to test4.ts');
+  });
+
   it('throws error with prefix [ERROR] if fastApply fails (e.g., file not found)', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const plugin = await FastApplyPlugin({ directory: '/workspace' } as any);
